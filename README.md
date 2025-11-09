@@ -1,3 +1,79 @@
+## 🎮 Tetris Stack Manager - EM C
+
+Este é um programa em C que simula o sistema de gerenciamento de peças do jogo fictício **Tetris Stack**, utilizando as estruturas de dados fundamentais de **Fila Circular** e **Pilha Linear** em conjunto para oferecer um gerenciamento de recursos estratégico.
+
+---
+
+## ⚙️ Conceitos Trabalhados
+
+O projeto implementa e integra duas estruturas de dados essenciais:
+
+1.  **Fila Circular de Peças Futuras (FIFO):**
+    * **Capacidade:** 5 peças.
+    * **Princípio:** First-In, First-Out (O primeiro a entrar é o primeiro a sair).
+    * **Implementação:** Utiliza ponteiros frente e tras para manipulação eficiente em um *array*, com lógica circular ( % ).
+    * **Regra do Jogo:** A fila é mantida **sempre cheia** através da geração automática de uma nova peça após qualquer remoção ou envio para a Pilha.
+
+2.  **Pilha Linear de Reserva (LIFO):**
+    * **Capacidade:** 3 peças.
+    * **Princípio:** Last-In, First-Out (O último a entrar é o primeiro a sair).
+    * **Implementação:** Utiliza o ponteiro topo para gerenciamento LIFO.
+
+---
+
+## 🧩 Funcionalidades Implementadas
+
+O programa oferece um menu interativo com as seguintes ações estratégicas:
+
+| Código | Ação | Descrição |
+| :----: | :--- | :--- |
+| **1** | **Jogar Peça** | Remove a peça da **frente** da Fila (Dequeue) e gera uma nova peça para repor o espaço. |
+| **2** | **Reservar Peça** | Move a peça da **frente** da Fila para o **topo** da Pilha (Push), se houver espaço. Repõe a Fila. |
+| **3** | **Usar Peça Reservada** | Remove a peça do **topo** da Pilha (Pop), simulando seu uso. Repõe a Fila. |
+| **4** | **Trocar Peça Única** | Realiza um *swap* direto entre a peça da **frente** da Fila e a peça do **topo** da Pilha. |
+| **5** | **Troca Múltipla** | Realiza um *swap* em bloco das **3 primeiras peças** da Fila com as **3 peças** da Pilha, exigindo que ambas estruturas tenham capacidade total. |
+| **0** | **Sair** | Encerra o programa. |
+
+---
+
+## 🛠️ Como Compilar e Executar
+
+Para rodar este programa em seu ambiente:
+
+1.  **Salve** o código-fonte C em um arquivo (ex: tetris_manager.c).
+2.  **Compile** usando um compilador C (como GCC) no terminal:
+    ```bash
+    gcc tetris_manager.c -o tetris_manager
+    ```
+3.  **Execute** o programa:
+    ```bash
+    ./tetris_manager
+    ```
+
+---
+
+## 🧱 Estruturas de Dados (structs)
+
+O código utiliza duas structs principais:
+
+### Peca
+
+Define o objeto base do sistema.
+
+| Atributo | Tipo | Descrição |
+| :------: | :--: | :--- |
+| **nome** | `char` | Tipo da peça ('I', 'O', 'T', 'L'), gerado aleatoriamente. |
+| **id** | `int` | Número sequencial único para identificar a ordem de criação. |
+
+### Fila e Pilha
+
+Gerenciam as coleções de peças.
+
+| Estrutura | Ponteiros de Controle | Aritmética Chave |
+| :-------: | :-------------------: | :---------------: |
+| **Fila** | frente, tras, contagem | Módulo (% MAX_FILA) |
+| **Pilha** | topo | Incremento/Decremento |
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Desafio Tetris Stack - Controle de Peças com Estruturas de Dados
 
 Bem-vindo ao desafio **"Tetris Stack"**! Neste jogo inspirado nas mecânicas clássicas de montagem de peças, o jogador deve organizar, reservar e manipular peças em tempo real. Para isso, você, como programador, será responsável por implementar as estruturas de controle que regem a lógica das peças.
