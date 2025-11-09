@@ -18,7 +18,7 @@ typedef struct {
     int frente;   // Índice do primeiro elemento
     int tras;     // Índice da posição logo após o último elemento
     int contagem; // Número atual de elementos
-    int proximo_id; // Contador para gerar IDs únicos (global para Fila e Pilha)
+    int proximo_id; // Contador para gerar IDs únicos (global)
 } Fila;
 
 // --- 3. Estrutura da Pilha Linear ---
@@ -29,7 +29,7 @@ typedef struct {
 
 // --- Protótipos das Funções ---
 
-// Funções de Inicialização e Geração
+// Funções Auxiliares e de Inicialização
 void inicializarFila(Fila *f);
 void inicializarPilha(Pilha *p);
 Peca gerarPeca(int *proximo_id);
@@ -43,17 +43,17 @@ void exibirFila(Fila *f);
 int empilhar(Pilha *p, Peca peca);
 Peca desempilhar(Pilha *p);
 void exibirPilha(Pilha *p);
+int getContagemPilha(Pilha *p); // Novo auxiliar para Pilha
 
-// Funções de Gerenciamento
-void jogarPecaAcao(Fila *f, Pilha *p);
+// Funções de Ações Estratégicas
+void jogarPecaAcao(Fila *f);
 void reservarPecaAcao(Fila *f, Pilha *p);
 void usarPecaReservadaAcao(Fila *f, Pilha *p);
+void trocarPecaUnica(Fila *f, Pilha *p); // Novo
+void trocarMultipla(Fila *f, Pilha *p);  // Novo
 
 // --- Implementação das Funções Auxiliares ---
 
-/**
- * @brief Inicializa a fila.
- */
 void inicializarFila(Fila *f) {
     f->frente = 0;
     f->tras = 0;
@@ -62,16 +62,10 @@ void inicializarFila(Fila *f) {
     srand(time(NULL)); 
 }
 
-/**
- * @brief Inicializa a pilha, definindo o topo como vazio (-1).
- */
 void inicializarPilha(Pilha *p) {
-    p->topo = -1; // -1 indica que a pilha está vazia
+    p->topo = -1;
 }
 
-/**
- * @brief Gera uma nova peça com ID único e tipo aleatório.
- */
 Peca gerarPeca(int *proximo_id) {
     Peca nova;
     char tipos[] = {'I', 'O', 'T', 'L'};
@@ -85,15 +79,8 @@ Peca gerarPeca(int *proximo_id) {
 
 // --- Implementação das Funções da Fila (FIFO) ---
 
-/**
- * @brief Adiciona uma peça ao final da fila (Enqueue).
- * * Assumimos que esta função só será chamada se houver espaço (ou após uma remoção),
- * pois a regra do jogo é manter a fila sempre cheia.
- */
 int inserirFila(Fila *f, Peca nova_peca) {
     if (f->contagem == MAX_FILA) {
-        // Esta condição não deve ser atingida devido à regra do jogo, 
-        // mas é mantida por segurança.
         return 0; 
     }
 
@@ -101,15 +88,12 @@ int inserirFila(Fila *f, Peca nova_peca) {
     f->tras = (f->tras + 1) % MAX_FILA;
     f->contagem++;
     
-    printf("\n   > Nova peca gerada e adicionada a FILA: Tipo '%c', ID %d.\n", 
+    printf("   > Nova peca gerada e adicionada a FILA: Tipo '%c', ID %d.\n", 
            nova_peca.nome, nova_peca.id);
 
     return 1;
 }
 
-/**
- * @brief Remove a peça da frente da fila (Dequeue).
- */
 Peca removerFila(Fila *f) {
     Peca peca_removida = {'\0', -1}; 
 
@@ -124,9 +108,6 @@ Peca removerFila(Fila *f) {
     return peca_removida;
 }
 
-/**
- * @brief Exibe o estado atual da fila, respeitando a ordem FIFO.
- */
 void exibirFila(Fila *f) {
     printf("⭐ FILA de pecas (Frente -> Tras) [%d/%d]: ", f->contagem, MAX_FILA);
 
@@ -135,10 +116,8 @@ void exibirFila(Fila *f) {
         return;
     }
 
-    int i;
     int indice_atual = f->frente; 
-
-    for (i = 0; i < f->contagem; i++) {
+    for (int i = 0; i < f->contagem; i++) {
         Peca p = f->pecas[indice_atual];
         printf("[**%c** %d]", p.nome, p.id);
         
@@ -149,9 +128,6 @@ void exibirFila(Fila *f) {
 
 // --- Implementação das Funções da Pilha (LIFO) ---
 
-/**
- * @brief Adiciona uma peça ao topo da pilha (Push).
- */
 int empilhar(Pilha *p, Peca peca) {
     if (p->topo == MAX_PILHA - 1) {
         return 0; // Pilha cheia
@@ -163,9 +139,6 @@ int empilhar(Pilha *p, Peca peca) {
     return 1; // Sucesso
 }
 
-/**
- * @brief Remove a peça do topo da pilha (Pop).
- */
 Peca desempilhar(Pilha *p) {
     Peca peca_removida = {'\0', -1};
 
@@ -179,11 +152,12 @@ Peca desempilhar(Pilha *p) {
     return peca_removida;
 }
 
-/**
- * @brief Exibe o estado atual da pilha, respeitando a ordem LIFO.
- */
+int getContagemPilha(Pilha *p) {
+    return p->topo + 1;
+}
+
 void exibirPilha(Pilha *p) {
-    int contagem_pilha = p->topo + 1;
+    int contagem_pilha = getContagemPilha(p);
     printf("📦 PILHA de reserva (Topo -> Base) [%d/%d]: ", contagem_pilha, MAX_PILHA);
 
     if (contagem_pilha == 0) {
@@ -191,7 +165,6 @@ void exibirPilha(Pilha *p) {
         return;
     }
 
-    // A pilha é exibida do topo para a base
     for (int i = p->topo; i >= 0; i--) {
         Peca peca = p->pecas[i];
         printf("[**%c** %d]", peca.nome, peca.id);
@@ -202,14 +175,17 @@ void exibirPilha(Pilha *p) {
     printf("\n");
 }
 
-// --- Implementação das Ações de Jogo ---
+// --- Implementação das Ações de Jogo (incluindo as de Mestre) ---
 
-/**
- * @brief Simula a ação de "Jogar uma peça".
- * * Remove a peça da frente da fila.
- * * Gera e insere uma nova peça no final da fila.
- */
-void jogarPecaAcao(Fila *f, Pilha *p) {
+void reporFila(Fila *f) {
+    // Repõe uma peça para manter a fila cheia após uma remoção
+    if (f->contagem < MAX_FILA) {
+        Peca nova = gerarPeca(&(f->proximo_id));
+        inserirFila(f, nova);
+    }
+}
+
+void jogarPecaAcao(Fila *f) {
     if (f->contagem == 0) {
         printf("\n❌ A Fila esta vazia! Nao ha pecas para jogar.\n");
         return;
@@ -219,19 +195,16 @@ void jogarPecaAcao(Fila *f, Pilha *p) {
     printf("\n🚀 Acao 1: PECA JOGADA. Tipo '%c', ID %d.\n", 
            peca_jogada.nome, peca_jogada.id);
 
-    // Requisito: A cada ação, uma nova peça é gerada e adicionada à fila.
-    Peca nova = gerarPeca(&(f->proximo_id));
-    inserirFila(f, nova);
+    reporFila(f);
 }
 
-/**
- * @brief Simula a ação de "Reservar uma peça".
- * * Move a peça da frente da fila para o topo da pilha.
- * * Gera e insere uma nova peça no final da fila.
- */
 void reservarPecaAcao(Fila *f, Pilha *p) {
     if (f->contagem == 0) {
         printf("\n❌ A Fila esta vazia! Nao ha pecas para reservar.\n");
+        return;
+    }
+    if (getContagemPilha(p) == MAX_PILHA) {
+        printf("\n🛑 Pilha de reserva cheia! Nao foi possivel reservar a peca.\n");
         return;
     }
 
@@ -240,43 +213,91 @@ void reservarPecaAcao(Fila *f, Pilha *p) {
     if (empilhar(p, peca_reservada)) {
         printf("\n✅ Acao 2: PECA RESERVADA. Tipo '%c', ID %d (Movida da Fila para a Pilha).\n", 
                peca_reservada.nome, peca_reservada.id);
-        
-        // Requisito: A cada ação, uma nova peça é gerada e adicionada à fila.
-        Peca nova = gerarPeca(&(f->proximo_id));
-        inserirFila(f, nova);
-
-    } else {
-        // Se a pilha estiver cheia, a peça volta para a frente da fila
-        // *Simulamos* o retorno, mas neste modelo, a remoção da fila é consumida
-        // e uma nova peça é gerada para substituir.
-        // Como simplificação, apenas reportamos o erro e geramos a nova peça.
-        printf("\n🛑 Pilha de reserva cheia! Nao foi possivel reservar a peca.\n");
-        // A peça removida da fila foi perdida e uma nova será inserida
-        Peca nova = gerarPeca(&(f->proximo_id));
-        inserirFila(f, nova);
-    }
+        reporFila(f);
+    } 
+    // Se a peça não empilhou, não era para ter removido, mas o fluxo do jogo é:
+    // 1. Tentar mover. 2. Se a pilha está cheia, avisar e não mover. 
+    // Como a checagem é feita antes, garantimos que se chegou aqui, a pilha tinha espaço.
 }
 
-/**
- * @brief Simula a ação de "Usar uma peça reservada".
- * * Remove a peça do topo da pilha.
- * * Gera e insere uma nova peça no final da fila.
- */
 void usarPecaReservadaAcao(Fila *f, Pilha *p) {
     Peca peca_usada = desempilhar(p);
     
     if (peca_usada.id != -1) {
         printf("\n⬇️ Acao 3: PECA RESERVADA UTILIZADA. Tipo '%c', ID %d (Removida da Pilha).\n", 
                peca_usada.nome, peca_usada.id);
-
-        // Requisito: A cada ação, uma nova peça é gerada e adicionada à fila.
-        Peca nova = gerarPeca(&(f->proximo_id));
-        inserirFila(f, nova);
-
+        reporFila(f);
     } else {
         printf("\n❌ A Pilha de reserva esta vazia! Nao ha pecas para usar.\n");
     }
 }
+
+/**
+ * @brief Troca a peça da frente da fila com a peça do topo da pilha.
+ */
+void trocarPecaUnica(Fila *f, Pilha *p) {
+    if (f->contagem == 0) {
+        printf("\n❌ Fila vazia! Nao eh possivel realizar a troca.\n");
+        return;
+    }
+    if (getContagemPilha(p) == 0) {
+        printf("\n❌ Pilha vazia! Nao eh possivel realizar a troca.\n");
+        return;
+    }
+    
+    // 1. Pega a peça da frente da fila (sem remover)
+    Peca peca_fila = f->pecas[f->frente];
+    
+    // 2. Pega a peça do topo da pilha (sem remover)
+    Peca peca_pilha = p->pecas[p->topo];
+    
+    // 3. Realiza a troca: move Pilha -> Fila
+    f->pecas[f->frente] = peca_pilha;
+    
+    // 4. Realiza a troca: move Fila -> Pilha
+    p->pecas[p->topo] = peca_fila;
+
+    printf("\n🔄 Acao 4: TROCA UNICA realizada.\n");
+    printf("   > Fila agora com: Tipo '%c', ID %d.\n", peca_pilha.nome, peca_pilha.id);
+    printf("   > Pilha agora com: Tipo '%c', ID %d.\n", peca_fila.nome, peca_fila.id);
+}
+
+/**
+ * @brief Troca as 3 primeiras peças da fila com as 3 peças da pilha.
+ * * Requer que ambas as estruturas tenham pelo menos 3 elementos.
+ */
+void trocarMultipla(Fila *f, Pilha *p) {
+    const int NUM_TROCA = 3;
+
+    if (f->contagem < NUM_TROCA || getContagemPilha(p) < NUM_TROCA) {
+        printf("\n🛑 Troca multipla FALHOU! Ambas as estruturas devem ter pelo menos %d pecas (Fila: %d, Pilha: %d).\n", 
+               NUM_TROCA, f->contagem, getContagemPilha(p));
+        return;
+    }
+
+    Peca temp;
+    printf("\n🔀 Acao 5: TROCA MULTIPLA (3 pecas) realizada.\n");
+
+    for (int i = 0; i < NUM_TROCA; i++) {
+        // Índice na fila, começando da frente
+        int idx_fila = (f->frente + i) % MAX_FILA;
+        
+        // Índice na pilha, do topo para baixo (LIFO)
+        int idx_pilha = p->topo - i; 
+
+        // 1. Salva a peça da Fila
+        temp = f->pecas[idx_fila];
+        
+        // 2. Move a peça da Pilha para a Fila
+        f->pecas[idx_fila] = p->pecas[idx_pilha];
+        
+        // 3. Move a peça da Fila para a Pilha
+        p->pecas[idx_pilha] = temp;
+
+        printf("   > Troca %d: Fila[%d] <-> Pilha[%d]\n", i + 1, idx_fila, idx_pilha);
+    }
+}
+
 
 // --- Função Principal (main) ---
 
@@ -290,10 +311,14 @@ int main() {
     inicializarPilha(&pilha_reserva);
 
     // Preenchimento inicial da fila com 5 peças
-    printf("--- Inicializando o Gerenciador de Pecas ---\n");
+    printf("--- Inicializando o Gerenciador de Pecas (Nivel Mestre) ---\n");
     while (fila_futuras.contagem < MAX_FILA) {
         Peca nova = gerarPeca(&fila_futuras.proximo_id);
-        inserirFila(&fila_futuras, nova); 
+        // insercao sem o feedback de repor fila
+        fila_futuras.pecas[fila_futuras.tras] = nova;
+        fila_futuras.tras = (fila_futuras.tras + 1) % MAX_FILA;
+        fila_futuras.contagem++;
+        printf("   [Inicial] Peça Tipo '%c', ID %d adicionada.\n", nova.nome, nova.id);
     }
     
     // Loop principal do menu
@@ -305,10 +330,12 @@ int main() {
         exibirPilha(&pilha_reserva);
         printf("-------------------------------------------------------\n");
         
-        printf("\n### OPCOES DE ACAO ###\n");
+        printf("\n### OPCOES DE ACAO (NIVEL MESTRE) ###\n");
         printf("1. Jogar peca (Dequeue da Fila)\n");
         printf("2. Reservar peca (Fila -> Pilha)\n");
         printf("3. Usar peca reservada (Pop da Pilha)\n");
+        printf("4. Trocar peca da frente da fila com o topo da pilha\n");
+        printf("5. Trocar os 3 primeiros da fila com as 3 da pilha\n");
         printf("0. Sair\n");
         printf("Escolha uma opcao: ");
         
@@ -319,13 +346,19 @@ int main() {
 
         switch (opcao) {
             case 1:
-                jogarPecaAcao(&fila_futuras, &pilha_reserva);
+                jogarPecaAcao(&fila_futuras);
                 break;
             case 2:
                 reservarPecaAcao(&fila_futuras, &pilha_reserva);
                 break;
             case 3:
                 usarPecaReservadaAcao(&fila_futuras, &pilha_reserva);
+                break;
+            case 4:
+                trocarPecaUnica(&fila_futuras, &pilha_reserva);
+                break;
+            case 5:
+                trocarMultipla(&fila_futuras, &pilha_reserva);
                 break;
             case 0:
                 printf("\n👋 Saindo do Tetris Stack Simulator. Ate logo!\n");
