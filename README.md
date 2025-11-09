@@ -75,7 +75,7 @@ Gerenciam as coleções de peças.
 | **Pilha** | topo | Incremento/Decremento |
 
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+++++++++++++++++++++++++++++++++++
 ---
 # Desafio Tetris Stack - Controle de Peças com Estruturas de Dados
 ---
