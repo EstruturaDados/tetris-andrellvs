@@ -73,9 +73,12 @@ Gerenciam as coleções de peças.
 | :-------: | :-------------------: | :---------------: |
 | **Fila** | frente, tras, contagem | Módulo (% MAX_FILA) |
 | **Pilha** | topo | Incremento/Decremento |
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# Desafio Tetris Stack - Controle de Peças com Estruturas de Dados
 
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+---
+# Desafio Tetris Stack - Controle de Peças com Estruturas de Dados
+---
 Bem-vindo ao desafio **"Tetris Stack"**! Neste jogo inspirado nas mecânicas clássicas de montagem de peças, o jogador deve organizar, reservar e manipular peças em tempo real. Para isso, você, como programador, será responsável por implementar as estruturas de controle que regem a lógica das peças.
 
 A empresa **ByteBros**, especializada em jogos educacionais de lógica e programação, contratou você para desenvolver o sistema de gerenciamento de peças, utilizando estruturas como **fila circular** e **pilha**.
